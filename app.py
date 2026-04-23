@@ -67,6 +67,16 @@ INPUT_MODE_OPTIONS = {
     "upload_pdf": "上传 PDF",
 }
 
+OPENAI_ENV_SECRET_KEYS = (
+    "OPENAI_API_KEY",
+    "OPENAI_BASE_URL",
+    "PLANNER_MODEL",
+    "TEXT_EXECUTOR_MODEL",
+    "PDF_LLM_MODEL",
+    "OPENAI_HTTP_REFERER",
+    "OPENAI_APP_TITLE",
+)
+
 SINGLE_FORM_KEYS = {
     "title": "single_form_title",
     "content_type": "single_form_content_type",
@@ -114,18 +124,18 @@ def store_recent_single_mode_params():
 
 
 def ensure_openai_api_key_ready():
-    env_value = os.getenv("OPENAI_API_KEY", "").strip()
-    if env_value:
-        return True, ""
-
-    secret_value = ""
-    try:
-        secret_value = str(st.secrets.get("OPENAI_API_KEY", "")).strip()
-    except Exception:
+    for env_key in OPENAI_ENV_SECRET_KEYS:
+        if os.getenv(env_key, "").strip():
+            continue
         secret_value = ""
+        try:
+            secret_value = str(st.secrets.get(env_key, "")).strip()
+        except Exception:
+            secret_value = ""
+        if secret_value:
+            os.environ[env_key] = secret_value
 
-    if secret_value:
-        os.environ["OPENAI_API_KEY"] = secret_value
+    if os.getenv("OPENAI_API_KEY", "").strip():
         return True, ""
 
     return (
@@ -137,23 +147,23 @@ def ensure_openai_api_key_ready():
 def build_user_facing_error_messages(exc):
     if isinstance(exc, MissingOpenAIAPIKeyError):
         return [
-            "当前没有可用的 OpenAI API key。",
+            "当前没有可用的模型服务 API key。",
             "请检查 `.streamlit/secrets.toml` 或 Streamlit Community Cloud Secrets 中是否配置了 `OPENAI_API_KEY`。",
         ]
     if isinstance(exc, OpenAIAuthenticationFailureError):
         return [
-            "OpenAI API key 无效，或当前共享 key 没有访问所需模型的权限。",
-            "请联系内部维护人检查 `OPENAI_API_KEY` 是否正确、是否仍可用。",
+            "当前共享 API key 无效，或没有访问所需模型的权限。",
+            "请联系内部维护人检查 `OPENAI_API_KEY`、`OPENAI_BASE_URL` 与模型配置是否正确。",
         ]
     if isinstance(exc, OpenAIQuotaError):
         return [
-            "当前共享 OpenAI key 的额度不足，或请求被限流。",
+            "当前共享模型服务 key 的额度不足，或请求被限流。",
             "请稍后重试，或联系内部维护人检查 billing / quota / rate limit。",
         ]
     if isinstance(exc, OpenAIRequestError):
         return [
-            f"OpenAI 请求失败：{exc}",
-            "请先检查网络连接与 OpenAI 服务状态；如果问题持续，请联系内部维护人查看日志。",
+            f"模型服务请求失败：{exc}",
+            "请先检查网络连接与服务状态；如果问题持续，请联系内部维护人查看日志。",
         ]
     if isinstance(exc, ValueError):
         return [line.strip() for line in str(exc).splitlines() if line.strip()]

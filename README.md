@@ -65,9 +65,9 @@ python -m pip install -e ../linkedin-skill
 
 `start_on_mac.sh` already does this automatically when `../linkedin-skill` exists.
 
-### 3. Configure the shared OpenAI API key
+### 3. Configure the shared provider settings
 
-Do not add any API key input field to the page. The app reads a shared server-side key from Streamlit secrets and maps it to `OPENAI_API_KEY` for the skill package.
+Do not add any API key input field to the page. The app reads shared server-side settings from Streamlit secrets and maps them into environment variables for the skill package.
 
 Create:
 
@@ -76,6 +76,8 @@ Create:
 OPENAI_API_KEY = "sk-your-shared-service-key"
 ```
 
+For official OpenAI, that single key is enough.
+
 There is also a committed example file:
 
 ```text
@@ -83,6 +85,27 @@ There is also a committed example file:
 ```
 
 The real `.streamlit/secrets.toml` is ignored by git.
+
+### Using OpenRouter
+
+To use OpenRouter instead of the official OpenAI base URL, set:
+
+```toml
+OPENAI_API_KEY = "sk-or-your-openrouter-key"
+OPENAI_BASE_URL = "https://openrouter.ai/api/v1"
+PLANNER_MODEL = "openai/gpt-5.2"
+TEXT_EXECUTOR_MODEL = "openai/gpt-5.2"
+PDF_LLM_MODEL = "openai/gpt-5.2-mini"
+```
+
+Optional OpenRouter headers:
+
+```toml
+OPENAI_HTTP_REFERER = "https://your-app.example"
+OPENAI_APP_TITLE = "LinkedIn Skill Demo"
+```
+
+Important: when using OpenRouter, model names must use the `provider/model` format such as `openai/gpt-5.2`. Bare model names such as `gpt-5.2` are for the default official OpenAI path and are not sufficient for OpenRouter.
 
 ### 4. Upload-size configuration
 
@@ -132,7 +155,7 @@ No sibling repo path is required in the cloud runtime.
 
 So Community Cloud installs the vendored `linkedin-skill` package as part of the normal dependency step.
 
-### 3. Configure the shared OpenAI key in Community Cloud
+### 3. Configure the shared provider settings in Community Cloud
 
 In the app settings, open **Secrets** and add:
 
@@ -141,6 +164,20 @@ OPENAI_API_KEY = "sk-your-shared-service-key"
 ```
 
 The page will automatically map that secret into the environment variable expected by `linkedin_skill`.
+
+If you want Community Cloud to use OpenRouter, add:
+
+```toml
+OPENAI_API_KEY = "sk-or-your-openrouter-key"
+OPENAI_BASE_URL = "https://openrouter.ai/api/v1"
+PLANNER_MODEL = "openai/gpt-5.2"
+TEXT_EXECUTOR_MODEL = "openai/gpt-5.2"
+PDF_LLM_MODEL = "openai/gpt-5.2-mini"
+OPENAI_HTTP_REFERER = "https://your-app.example"
+OPENAI_APP_TITLE = "LinkedIn Skill Demo"
+```
+
+The two header fields are optional.
 
 ### 4. Upload-size config in Community Cloud
 

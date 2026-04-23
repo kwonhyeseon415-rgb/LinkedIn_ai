@@ -18,6 +18,16 @@ def safe_text_preview(text, limit=320):
     return f"{normalized[:limit].rstrip()}..."
 
 
+def build_final_drafts_body(response: SkillResponse):
+    draft_bundle = dict(getattr(response, "draft_bundle", {}) or {})
+    english_drafts = draft_bundle.get("final_linkedin_drafts") or response.final_linkedin_drafts
+    chinese_translation = draft_bundle.get("chinese_translation", "")
+    sections = ["English Drafts", english_drafts]
+    if chinese_translation:
+        sections.extend(["中文翻译", chinese_translation])
+    return "\n\n".join(section for section in sections if section).strip()
+
+
 def build_preview_structure(response: SkillResponse):
     lines = [
         "Skill Preview Structure｜统一技能执行结构预览",
@@ -99,7 +109,7 @@ def build_streamlit_payload(response: SkillResponse):
         {
             "title": "Final LinkedIn Drafts",
             "caption": f"Text executor status: {response.text_executor_result.status}",
-            "body": response.final_linkedin_drafts,
+            "body": build_final_drafts_body(response),
             "accent": "red",
             "kicker": "Executor Output",
             "download_name": build_download_filename(title, content_type, "final_linkedin_drafts"),

@@ -1,3 +1,5 @@
+from typing import Optional
+
 import streamlit as st
 
 from streamlit_app_config import (
@@ -63,12 +65,18 @@ APP_TITLE = "LinkedIn Content Skill Demo"
 APP_SUBTITLE = "Skill-first 架构演示：Streamlit 只负责输入与展示，核心流程统一走 LinkedIn 内容生成 skill。"
 
 
-def initialize_single_mode_session_state():
-    _initialize_single_mode_session_state(st, default_content_type=DEFAULT_CONTENT_TYPE)
+def initialize_single_mode_session_state(default_content_type: Optional[str] = None):
+    _initialize_single_mode_session_state(
+        st,
+        default_content_type=default_content_type or DEFAULT_CONTENT_TYPE,
+    )
 
 
-def store_recent_single_mode_params():
-    _store_recent_single_mode_params(st, default_content_type=DEFAULT_CONTENT_TYPE)
+def store_recent_single_mode_params(default_content_type: Optional[str] = None):
+    _store_recent_single_mode_params(
+        st,
+        default_content_type=default_content_type or DEFAULT_CONTENT_TYPE,
+    )
 
 
 def ensure_openai_api_key_ready():

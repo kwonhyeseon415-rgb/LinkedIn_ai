@@ -58,5 +58,22 @@ class StreamlitSecretsEnvMappingTests(unittest.TestCase):
             self.assertEqual(os.environ["OPENAI_BASE_URL"], "https://custom.example/v1")
 
 
+class StreamlitWrapperCompatibilityTests(unittest.TestCase):
+    @patch("app._initialize_single_mode_session_state")
+    def test_initialize_single_mode_session_state_accepts_default_override(self, initialize_mock):
+        app.initialize_single_mode_session_state(default_content_type="news")
+        initialize_mock.assert_called_once_with(app.st, default_content_type="news")
+
+    @patch("app._initialize_single_mode_session_state")
+    def test_initialize_single_mode_session_state_falls_back_to_existing_default(self, initialize_mock):
+        app.initialize_single_mode_session_state()
+        initialize_mock.assert_called_once_with(app.st, default_content_type=app.DEFAULT_CONTENT_TYPE)
+
+    @patch("app._store_recent_single_mode_params")
+    def test_store_recent_single_mode_params_accepts_default_override(self, store_mock):
+        app.store_recent_single_mode_params(default_content_type="news")
+        store_mock.assert_called_once_with(app.st, default_content_type="news")
+
+
 if __name__ == "__main__":
     unittest.main()

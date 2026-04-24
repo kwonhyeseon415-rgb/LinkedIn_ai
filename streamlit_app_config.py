@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import os
 
 
@@ -24,12 +26,13 @@ SINGLE_FORM_KEYS = {
 
 LAST_SINGLE_PARAMS_KEY = "last_single_mode_params"
 SINGLE_RESULT_KEY = "single_mode_result"
+DEFAULT_SINGLE_CONTENT_TYPE = "paper"
 
 
-def get_default_single_mode_params(default_content_type):
+def get_default_single_mode_params(default_content_type: str | None = None):
     return {
         "title": "",
-        "content_type": default_content_type,
+        "content_type": default_content_type or DEFAULT_SINGLE_CONTENT_TYPE,
         "target_audience": "",
         "tone": "",
         "post_count": 3,
@@ -39,7 +42,7 @@ def get_default_single_mode_params(default_content_type):
     }
 
 
-def initialize_single_mode_session_state(st_module, *, default_content_type):
+def initialize_single_mode_session_state(st_module, *, default_content_type: str | None = None):
     defaults = get_default_single_mode_params(default_content_type)
     last_params = st_module.session_state.get(LAST_SINGLE_PARAMS_KEY, {})
     hydrated = {**defaults, **last_params}
@@ -48,7 +51,7 @@ def initialize_single_mode_session_state(st_module, *, default_content_type):
             st_module.session_state[widget_key] = hydrated[field_name]
 
 
-def store_recent_single_mode_params(st_module, *, default_content_type):
+def store_recent_single_mode_params(st_module, *, default_content_type: str | None = None):
     defaults = get_default_single_mode_params(default_content_type)
     input_mode = st_module.session_state.get(SINGLE_FORM_KEYS["input_mode"], "paste")
     st_module.session_state[LAST_SINGLE_PARAMS_KEY] = {

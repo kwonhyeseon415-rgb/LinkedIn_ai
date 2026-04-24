@@ -1,4 +1,4 @@
-from typing import Optional
+from __future__ import annotations
 
 import streamlit as st
 
@@ -65,14 +65,14 @@ APP_TITLE = "LinkedIn Content Skill Demo"
 APP_SUBTITLE = "Skill-first 架构演示：Streamlit 只负责输入与展示，核心流程统一走 LinkedIn 内容生成 skill。"
 
 
-def initialize_single_mode_session_state(default_content_type: Optional[str] = None):
+def initialize_single_mode_session_state(default_content_type: str | None = None):
     _initialize_single_mode_session_state(
         st,
         default_content_type=default_content_type or DEFAULT_CONTENT_TYPE,
     )
 
 
-def store_recent_single_mode_params(default_content_type: Optional[str] = None):
+def store_recent_single_mode_params(default_content_type: str | None = None):
     _store_recent_single_mode_params(
         st,
         default_content_type=default_content_type or DEFAULT_CONTENT_TYPE,

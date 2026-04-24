@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 import app
+import streamlit_app_config
 
 
 class FakeSecrets(dict):
@@ -73,6 +74,43 @@ class StreamlitWrapperCompatibilityTests(unittest.TestCase):
     def test_store_recent_single_mode_params_accepts_default_override(self, store_mock):
         app.store_recent_single_mode_params(default_content_type="news")
         store_mock.assert_called_once_with(app.st, default_content_type="news")
+
+
+class FakeStreamlitModule:
+    def __init__(self):
+        self.session_state = {}
+
+
+class StreamlitSessionStateInitializationTests(unittest.TestCase):
+    def test_initialize_single_mode_session_state_uses_override_for_content_type(self):
+        st_module = FakeStreamlitModule()
+
+        streamlit_app_config.initialize_single_mode_session_state(
+            st_module,
+            default_content_type="news",
+        )
+
+        self.assertEqual(
+            st_module.session_state[streamlit_app_config.SINGLE_FORM_KEYS["content_type"]],
+            "news",
+        )
+        self.assertEqual(
+            st_module.session_state[streamlit_app_config.SINGLE_FORM_KEYS["language"]],
+            "English",
+        )
+
+    def test_initialize_single_mode_session_state_falls_back_when_override_is_none(self):
+        st_module = FakeStreamlitModule()
+
+        streamlit_app_config.initialize_single_mode_session_state(
+            st_module,
+            default_content_type=None,
+        )
+
+        self.assertEqual(
+            st_module.session_state[streamlit_app_config.SINGLE_FORM_KEYS["content_type"]],
+            streamlit_app_config.DEFAULT_SINGLE_CONTENT_TYPE,
+        )
 
 
 if __name__ == "__main__":

@@ -114,6 +114,10 @@ class StreamlitPayloadTests(unittest.TestCase):
         self.assertIn("English draft body", final_tab_body)
         self.assertIn("中文翻译", final_tab_body)
         self.assertIn("中文翻译正文", final_tab_body)
+        image_tab = payload["tabs"][3]
+        self.assertIn("Image prompt", image_tab["body"])
+        self.assertEqual(image_tab["image_url"], "")
+        self.assertEqual(image_tab["image_base64"], "")
 
 
 if __name__ == "__main__":

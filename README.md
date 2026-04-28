@@ -107,6 +107,20 @@ OPENAI_APP_TITLE = "LinkedIn Skill Demo"
 
 Important: when using OpenRouter, model names must use the `provider/model` format such as `openai/gpt-5.2`. Bare model names such as `gpt-5.2` are for the default official OpenAI path and are not sufficient for OpenRouter.
 
+### Optional Image Generation
+
+By default, the image executor still returns the image prompt only, so the existing text generation path and token cost profile remain unchanged.
+
+To also generate an image result, enable the image executor and choose an image model:
+
+```toml
+ENABLE_IMAGE_GENERATION = "true"
+IMAGE_GENERATOR_MODEL = "gpt-image-1"
+IMAGE_GENERATION_SIZE = "1024x1024"
+```
+
+When enabled, the web page renders the generated image when the provider returns a URL or base64 image payload, and still keeps the image prompt visible in the result tab.
+
 ### 4. Upload-size configuration
 
 This repo includes project-level Streamlit config:
@@ -178,6 +192,14 @@ OPENAI_APP_TITLE = "LinkedIn Skill Demo"
 ```
 
 The two header fields are optional.
+
+Optional image generation secrets:
+
+```toml
+ENABLE_IMAGE_GENERATION = "true"
+IMAGE_GENERATOR_MODEL = "gpt-image-1"
+IMAGE_GENERATION_SIZE = "1024x1024"
+```
 
 ### 4. Upload-size config in Community Cloud
 

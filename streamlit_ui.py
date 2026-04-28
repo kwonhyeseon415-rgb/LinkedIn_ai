@@ -1,3 +1,4 @@
+import base64
 import html
 import json
 
@@ -165,6 +166,15 @@ def render_result_tabs(view_payload):
                 accent=item["accent"],
                 kicker=item["kicker"],
             )
+            image_url = item.get("image_url")
+            image_base64 = item.get("image_base64")
+            if image_url:
+                st.image(image_url, caption="Generated image")
+            elif image_base64:
+                try:
+                    st.image(base64.b64decode(image_base64), caption="Generated image")
+                except Exception:
+                    st.warning("图片已生成，但前端预览解码失败；请使用下方文本结果中的图片信息。")
             action_cols = st.columns(2)
             with action_cols[0]:
                 st.download_button(
@@ -235,6 +245,14 @@ def render_single_mode_page(
     if not api_key_ready and api_key_message:
         st.error(api_key_message)
 
+    input_mode = st.radio(
+        "输入方式",
+        list(INPUT_MODE_OPTIONS.keys()),
+        key=SINGLE_FORM_KEYS["input_mode"],
+        format_func=lambda key: INPUT_MODE_OPTIONS[key],
+        horizontal=True,
+    )
+
     with st.form("single_generation_form"):
         col_left, col_right = st.columns(2)
 
@@ -272,13 +290,6 @@ def render_single_mode_page(
                 step=1,
             )
             language = st.text_input("生成语言", key=SINGLE_FORM_KEYS["language"])
-            input_mode = st.radio(
-                "输入方式",
-                list(INPUT_MODE_OPTIONS.keys()),
-                key=SINGLE_FORM_KEYS["input_mode"],
-                format_func=lambda key: INPUT_MODE_OPTIONS[key],
-                horizontal=True,
-            )
 
         uploaded_file = None
         pasted_text = st.session_state.get(SINGLE_FORM_KEYS["pasted_text"], "")
@@ -309,21 +320,26 @@ def render_single_mode_page(
         )
 
     if submitted:
+        loading_box = st.empty()
+        loading_box.info("正在生成中：正在解析输入资料、生成文案和图片结果，请稍候。")
         try:
-            st.session_state[SINGLE_RESULT_KEY] = run_streamlit_skill_request(
-                title=title,
-                content_type=content_type,
-                target_audience=target_audience,
-                tone=tone,
-                post_count=int(post_count),
-                language=language,
-                input_mode=input_mode,
-                uploaded_file=uploaded_file,
-                pasted_text=pasted_text,
-            )
-            store_recent_single_mode_params(default_content_type=default_content_type)
+            with st.spinner("正在生成中..."):
+                st.session_state[SINGLE_RESULT_KEY] = run_streamlit_skill_request(
+                    title=title,
+                    content_type=content_type,
+                    target_audience=target_audience,
+                    tone=tone,
+                    post_count=int(post_count),
+                    language=language,
+                    input_mode=input_mode,
+                    uploaded_file=uploaded_file,
+                    pasted_text=pasted_text,
+                )
+                store_recent_single_mode_params(default_content_type=default_content_type)
+            loading_box.success("生成完成。结果已更新在下方。")
         except Exception as exc:
             st.session_state.pop(SINGLE_RESULT_KEY, None)
+            loading_box.error("生成失败，请查看下面的错误提示。")
             for error in build_user_facing_error_messages(exc):
                 st.error(error)
 

@@ -65,6 +65,24 @@ def build_preview_structure(response: SkillResponse):
     return "\n".join(lines).strip()
 
 
+def build_image_generation_body(response: SkillResponse):
+    result = response.image_executor_result
+    payload = dict(result.payload or {})
+    sections = []
+    image_prompt = payload.get("image_prompt") or response.planner_output.image_generation_prompt
+    if image_prompt:
+        sections.extend(["Image prompt", image_prompt])
+    if payload.get("image_url"):
+        sections.extend(["Generated image URL", payload["image_url"]])
+    if payload.get("image_base64"):
+        sections.extend(["Generated image", "Base64 image content is available in the structured payload and rendered by the web preview."])
+    if payload.get("revised_prompt"):
+        sections.extend(["Revised prompt", payload["revised_prompt"]])
+    if not sections and result.output_text:
+        sections.append(result.output_text)
+    return "\n\n".join(str(section) for section in sections if str(section).strip()).strip()
+
+
 def build_summary_items(response: SkillResponse):
     items = [
         ("平台范围", "LinkedIn only"),
@@ -97,6 +115,7 @@ def build_streamlit_payload(response: SkillResponse):
     preview_structure = build_preview_structure(response)
     title = response.request.title
     content_type = response.request.content_type
+    image_payload = dict(response.image_executor_result.payload or {})
     tabs = [
         {
             "title": "Highlights Summary",
@@ -125,10 +144,12 @@ def build_streamlit_payload(response: SkillResponse):
         {
             "title": "Image Generation Prompt",
             "caption": f"Image executor status: {response.image_executor_result.status}",
-            "body": response.image_executor_result.output_text,
+            "body": build_image_generation_body(response),
             "accent": "blue",
-            "kicker": "Placeholder Executor",
+            "kicker": "Image Executor" if response.image_executor_result.status == "success" else "Placeholder Executor",
             "download_name": build_download_filename(title, content_type, "image_generation_prompt"),
+            "image_url": image_payload.get("image_url", ""),
+            "image_base64": image_payload.get("image_base64", ""),
         },
         {
             "title": "Video Generation Prompt",

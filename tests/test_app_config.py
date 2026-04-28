@@ -20,6 +20,9 @@ class StreamlitSecretsEnvMappingTests(unittest.TestCase):
                 "PLANNER_MODEL": "openai/gpt-5.2",
                 "TEXT_EXECUTOR_MODEL": "openai/gpt-5.2",
                 "PDF_LLM_MODEL": "openai/gpt-5.2-mini",
+                "IMAGE_GENERATOR_MODEL": "gpt-image-1",
+                "IMAGE_GENERATION_SIZE": "1024x1024",
+                "ENABLE_IMAGE_GENERATION": "true",
                 "OPENAI_HTTP_REFERER": "https://example.com/demo",
                 "OPENAI_APP_TITLE": "LinkedIn Skill Demo",
             }
@@ -34,6 +37,9 @@ class StreamlitSecretsEnvMappingTests(unittest.TestCase):
             self.assertEqual(os.environ["PLANNER_MODEL"], "openai/gpt-5.2")
             self.assertEqual(os.environ["TEXT_EXECUTOR_MODEL"], "openai/gpt-5.2")
             self.assertEqual(os.environ["PDF_LLM_MODEL"], "openai/gpt-5.2-mini")
+            self.assertEqual(os.environ["IMAGE_GENERATOR_MODEL"], "gpt-image-1")
+            self.assertEqual(os.environ["IMAGE_GENERATION_SIZE"], "1024x1024")
+            self.assertEqual(os.environ["ENABLE_IMAGE_GENERATION"], "true")
             self.assertEqual(os.environ["OPENAI_HTTP_REFERER"], "https://example.com/demo")
             self.assertEqual(os.environ["OPENAI_APP_TITLE"], "LinkedIn Skill Demo")
 

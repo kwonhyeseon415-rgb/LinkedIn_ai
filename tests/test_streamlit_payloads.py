@@ -10,6 +10,17 @@ from linkedin_skill.interfaces.schemas import (
 from streamlit_payloads import build_streamlit_payload
 
 
+MINIMAL_TEXT_PLAN = {
+    "primary_angle": "Grounded insight",
+    "target_reader_takeaway": "One practical takeaway",
+    "must_include_points": ["Point A"],
+    "tone_instructions": ["Professional"],
+    "cta_mode": "question",
+    "length_target": "short_linkedin_post",
+    "style_profile_name": "default_linkedin",
+}
+
+
 class StreamlitPayloadTests(unittest.TestCase):
     def test_final_drafts_tab_renders_english_and_chinese_sections(self):
         request = SkillRequest(
@@ -40,6 +51,7 @@ class StreamlitPayloadTests(unittest.TestCase):
             text_generation_prompt="Text prompt",
             image_generation_prompt="Image prompt",
             video_generation_prompt="Video prompt",
+            text_plan=MINIMAL_TEXT_PLAN,
         )
         text_result = ExecutorResult(
             executor_name="text_executor",
